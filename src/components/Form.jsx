@@ -1,14 +1,15 @@
-import React from "react";
-import { useState } from "react";
+import React, { useState } from "react";
 import axios from "axios";
 
-function Form() {
+function Form({ onSubmit }) {
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
     edad: "",
     telefono: "",
   });
+
+  const [error, setError] = useState("");
 
   const handleChange = (event) => {
     const { name, value } = event.target;
@@ -20,15 +21,34 @@ function Form() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    window.alert("Formulario enviado");
-    console.log(formData);
-    axios.post('http://localhost:3000/usuarios', formData)
-    .then(function (response) {
-      console.log(`Se ha creado el usuario ${formData.nombre}`);
-    })
-    .catch(function (error) {
-      console.log('No se cargo el usuario');
-    });
+    try {
+      if (formData.apellido.length < 4) {
+        throw new Error("Apellido debe tener al menos 4 caracteres");
+      }
+      if (formData.nombre.length < 4) {
+        throw new Error("Nombre debe tener al menos 4 caracteres");
+      }
+      if (parseInt(formData.edad) >= 120) {
+        throw new Error("Edad debe ser menor a 120");
+      }
+      const phoneRegex = /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/;
+      if (!phoneRegex.test(formData.telefono)) {
+        throw new Error("Telefono debe tener 10 caracteres en formato válido");
+      }
+
+      axios
+        .post("http://localhost:3000/usuarios", formData)
+        .then(function (response) {
+          window.alert(`Se ha creado el usuario ${formData.nombre}`);
+          onSubmit();
+        })
+        .catch(function (error) {
+          console.log("No se cargo el usuario");
+        });
+    } catch (error) {
+      setError(error.message);
+      console.log(error.message);
+    }
   };
 
   return (
@@ -42,6 +62,7 @@ function Form() {
             name="nombre"
             value={formData.nombre}
             onChange={handleChange}
+            required
           />
         </div>
         <div>
@@ -52,6 +73,7 @@ function Form() {
             name="apellido"
             value={formData.apellido}
             onChange={handleChange}
+            required
           />
         </div>
         <div>
@@ -73,10 +95,12 @@ function Form() {
             name="telefono"
             value={formData.telefono}
             onChange={handleChange}
+            required
           />
         </div>
         <button type="submit">Enviar</button>
       </form>
+      <p style={{ color: "red" }}>{error}</p>
     </div>
   );
 }

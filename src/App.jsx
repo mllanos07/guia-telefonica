@@ -6,26 +6,32 @@ import Form from "./components/Form.jsx";
 import Navbar from "./components/Navbar.jsx";
 
 function App() {
-  const db = "http://localhost:3000/";
+  const db = "http://localhost:3000";
 
-  const [userData, setUserData] = useState({});
+  const [userData, setUserData] = useState([]);
+
+  const [refreshData, setRefreshData] = useState(false);
 
   useEffect(() => {
     axios
-      .get(`${db}/usuarios/`)
-      .then((response) => {
-        setUserData(response);
+      .get(`${db}/usuarios`)
+      .then(function (response) {
+        setUserData(response.data);
       })
-      .catch((error) => {
+      .catch(function (error) {
         console.log("No anduvo", error);
       });
-  }, []);
-  
+  }, [refreshData]);
+
+  const triggerRefresh = () => {
+    setRefreshData((prev) => !prev);
+  };
+
   return (
     <div className="App">
-      <Navbar />
-      <Form />
-      <Tabla />
+      <Navbar userData={userData} />
+      <Form onSubmit={triggerRefresh}/>
+      <Tabla userData={userData} onDelete={triggerRefresh} />
       <Footer />
     </div>
   );

@@ -3,12 +3,12 @@ import { useState } from "react";
 import axios from "axios";
 import Input from "./Input.jsx";
 
-function Navbar() {
+function Navbar({ userData }) {
   return (
     <div>
       <header className="flex-container">
         <img src="src\assets\images.jpg" alt="Guaracha" />
-        <Input />
+        <Input userData={userData} />
       </header>
     </div>
   );

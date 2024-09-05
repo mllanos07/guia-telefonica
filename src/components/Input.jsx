@@ -1,18 +1,26 @@
-import React from "react";
-import { useState } from "react";
-import axios from "axios";
+import React, { useState } from "react";
 
-function Input() {
+function Input({ userData }) {
   const [text, setText] = useState("");
 
   const search = (event) => {
     setText(event.target.value);
-    //products.filter((product) => product.title.startsWith(event.target.value));
   };
+
+  const filteredUsers = userData.filter((user) =>
+    user.nombre.toLowerCase().startsWith(text.toLowerCase())
+  );
 
   return (
     <div>
       <input onChange={search} value={text} placeholder="Buscar" />
+      <ul>
+        {filteredUsers.length > 0 ? (
+          filteredUsers.map((user) => <li key={user.id}>{user.nombre}</li>)
+        ) : (
+          <p>Sin Resultados</p>
+        )}
+      </ul>
     </div>
   );
 }
